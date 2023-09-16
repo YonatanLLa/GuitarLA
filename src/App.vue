@@ -7,29 +7,52 @@ import Footer from "./components/Footer.vue";
 
 const guitarras = ref([]);
 const carrito = ref([]);
+const guitarra = ref({});
 
 onMounted(() => {
   guitarras.value = db;
+  guitarra.value = db[3];
 });
 
-const incrementar = (guitarra) => {
+const agregarCarrito = (guitarra) => {
   const existCarr = carrito.value.findIndex(
     (producto) => producto.id === guitarra.id
   );
-  console.log(existCarr);
   if (existCarr >= 0) {
-    carrito.value[existCarr].cantidad++
+    carrito.value[existCarr].cantidad++;
   } else {
     guitarra.cantidad = 1;
     carrito.value.push(guitarra);
   }
 };
+const decrementarCantidad = (id) => {
+  const index = carrito.value.findIndex((produc) => produc.id === id);
 
-console.log(guitarras);
+  if (carrito.value[index].cantidad <= 1) return;
+  carrito.value[index].cantidad--;
+};
+
+const incrementarCantidad = (id) => {
+  const indexI = carrito.value.findIndex((produc) => produc.id === id);
+  carrito.value[indexI].cantidad++;
+};
+
+const deleteProduct = (id) => {
+  carrito.value = carrito.value.filter((p) => {
+    return p.id !== id;
+  });
+};
 </script>
 
 <template>
-  <Header :carrito="carrito" />
+  <Header
+    :carrito="carrito"
+    :guitarra="guitarra"
+    @decrementarCantidad="decrementarCantidad"
+    @incrementarCantidad="incrementarCantidad"
+    @delete-product="deleteProduct"
+    @agregar-carrito="agregarCarrito"
+  />
   <main class="container-xl mt-5">
     <h2 class="text-center">Nuestra Colección</h2>
 
@@ -37,7 +60,7 @@ console.log(guitarras);
       <Guitarra
         v-for="guitarra in guitarras"
         :guitarra="guitarra"
-        @incrementar="incrementar"
+        @incrementar="agregarCarrito"
       />
     </div>
   </main>
